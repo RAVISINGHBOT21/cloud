@@ -130,6 +130,30 @@ def verify_screenshot(message):
 
     del pending_verification[user_id]  # ✅ अब यूजर अटैक कर सकता है
     bot.reply_to(message, "✅ **SCREENSHOT VERIFY HO GAYA! AB TU NEXT ATTACK KAR SAKTA HAI!**")
+
+# ✅ /ANNOUNCE Command (Admin Only)
+@bot.message_handler(commands=['announce'])
+def announce_message(message):
+    if str(message.from_user.id) not in ADMINS:
+        bot.reply_to(message, "❌ ADMIN ONLY COMMAND!")
+        return
+
+    command = message.text.split(maxsplit=1)
+    if len(command) < 2:
+        bot.reply_to(message, "⚠ USAGE: /announce <message>")
+        return
+
+    announcement = f"📢 **ANNOUNCEMENT:**\n{command[1]}"
+    
+    # ✅ Auto-Pin Announcement
+    msg = bot.send_message(GROUP_ID, announcement, parse_mode="Markdown")
+    bot.pin_chat_message(GROUP_ID, msg.message_id)
+
+    # ✅ Auto-Delete After 2 Hours (7200 seconds)
+    threading.Timer(7200, lambda: bot.delete_message(GROUP_ID, msg.message_id)).start()
+
+    bot.reply_to(message, "✅ ANNOUNCEMENT SENT & PINNED!")
+
 # ✅ ATTACK STATS COMMAND
 @bot.message_handler(commands=['check'])
 def attack_stats(message):
@@ -166,32 +190,6 @@ def restart_bot(message):
         subprocess.run("python3 m.py", shell=True)
     else:
         bot.reply_to(message, "🚫 SIRF ADMIN HI RESTART KAR SAKTA HAI!")
-
-# ✅ GROUP & CHANNEL SETTINGS
-ANNOUNCE_CHANNEL = "@ONLYPAID_USER_77"  # ✅ Announcement इसी चैनल में जाएगा
-ANNOUNCE_INTERVAL = 2 * 60 * 60  # ✅ 2 घंटे (7200 सेकंड)
-
-# ✅ AUTO ANNOUNCEMENT SYSTEM
-def auto_announce():
-    while True:
-        try:
-            announcement_text = (
-                "🔥 **PAID HACKS AVAILABLE!** 🔥\n\n"
-                "🎯 **@KHAPITAR_BALAK77** चैनल पर आपको **हर तरह के VIP PAID HACKS** मिलेंगे!\n\n"
-                "💰 **Price List:**\n"
-                "✅ **1 Hour - ₹15**\n"
-                "✅ **1 Day - ₹60**\n"
-                "✅ **3 Days - ₹160**\n\n"
-                "🛒 **Agar lena hai toh DM kare:** @R_SDANGER77"
-            )
-            bot.send_message(ANNOUNCE_CHANNEL, announcement_text, parse_mode="Markdown")
-        except Exception as e:
-            print(f"⚠️ Announcement Error: {e}")
-        
-        time.sleep(ANNOUNCE_INTERVAL)  # ✅ 2 घंटे के लिए रुकेगा
-
-# ✅ ANNOUNCEMENT SYSTEM को BACKGROUND में चलाना
-threading.Thread(target=auto_announce, daemon=True).start()
 
 # ✅ BOT START
 bot.polling(none_stop=True)
