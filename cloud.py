@@ -10,6 +10,7 @@ bot = telebot.TeleBot('8064557178:AAG578KnVSWvoz5eigBuQQwVTfYuLi5LPTU')
 # ✅  GROUP & CHANNEL SETTINGS
 GROUP_ID = "-1001855389923"
 SCREENSHOT_CHANNEL = "@CLouD_VIP_CHEAT"
+SCREENSHOT_CHANNEL_2 = "@KHAPITAR_BALAK77"
 ADMINS = [7129010361, 1851260327]
 
 # ✅ GLOBAL VARIABLES
@@ -18,15 +19,16 @@ pending_verification = {}  # वेरिफिकेशन के लिए य
 user_attack_count = {}
 MAX_ATTACKS = 3  # (या जो भी लिमिट चाहिए)
 
-# ✅ CHECK IF USER IS IN CHANNEL
-def is_user_in_channel(user_id):
+# ✅ CHECK IF USER IS IN BOTH CHANNELS
+def is_user_in_both_channels(user_id):
     try:
-        member = bot.get_chat_member(SCREENSHOT_CHANNEL, user_id)
-        return member.status in ['member', 'administrator', 'creator']
+        member1 = bot.get_chat_member(SCREENSHOT_CHANNEL, user_id)
+        member2 = bot.get_chat_member(SCREENSHOT_CHANNEL_2, user_id)
+        return (member1.status in ['member', 'administrator', 'creator']) and (member2.status in ['member', 'administrator', 'creator'])
     except:
         return False
 
-# ✅ HANDLE ATTACK COMMAND
+# ✅ HANDLE ATTACK COMMAND (FIXED)
 @bot.message_handler(commands=['bgmi'])
 def handle_attack(message):
     user_id = message.from_user.id
@@ -36,8 +38,8 @@ def handle_attack(message):
         bot.reply_to(message, "🚫 **YE BOT SIRF GROUP ME CHALEGA!** ❌")
         return
 
-    if not is_user_in_channel(user_id):
-        bot.reply_to(message, f"❗ **PEHLE CHANNEL JOIN KARO!** {SCREENSHOT_CHANNEL}")
+    if not is_user_in_both_channels(user_id):
+        bot.reply_to(message, f"❗ **PEHLE DONO CHANNEL JOIN KARO!**\n👉 {SCREENSHOT_CHANNEL}\n👉 {SCREENSHOT_CHANNEL_2}")
         return
 
     # ✅ पहले पेंडिंग वेरिफिकेशन चेक करो
@@ -52,7 +54,7 @@ def handle_attack(message):
         return
 
     if len(command) != 4:
-        bot.reply_to(message, "⚠️ **USAGE:** `/RS <IP> <PORT> <TIME>`")
+        bot.reply_to(message, "⚠️ **USAGE:** `/bgmi <IP> <PORT> <TIME>`")
         return
 
     target, port, time_duration = command[1], command[2], command[3]
@@ -112,7 +114,7 @@ def handle_attack(message):
 
     threading.Thread(target=attack_execution).start()
 
-# ✅ SCREENSHOT VERIFICATION SYSTEM
+# ✅ SCREENSHOT VERIFICATION SYSTEM (FIXED)
 @bot.message_handler(content_types=['photo'])
 def verify_screenshot(message):
     user_id = message.from_user.id
@@ -121,13 +123,13 @@ def verify_screenshot(message):
         bot.reply_to(message, "❌ **TERE KOI PENDING VERIFICATION NAHI HAI! SCREENSHOT FALTU NA BHEJ!**")
         return
 
-    # ✅ SCREENSHOT CHANNEL FORWARD
+    # ✅ SCREENSHOT BOTH CHANNELS FORWARD
     file_id = message.photo[-1].file_id
     bot.send_photo(SCREENSHOT_CHANNEL, file_id, caption=f"📸 **VERIFIED SCREENSHOT FROM:** `{user_id}`")
+    bot.send_photo(SCREENSHOT_CHANNEL_2, file_id, caption=f"📸 **VERIFIED SCREENSHOT FROM:** `{user_id}`")
 
     del pending_verification[user_id]  # ✅ अब यूजर अटैक कर सकता है
     bot.reply_to(message, "✅ **SCREENSHOT VERIFY HO GAYA! AB TU NEXT ATTACK KAR SAKTA HAI!**")
-
 # ✅ ATTACK STATS COMMAND
 @bot.message_handler(commands=['check'])
 def attack_stats(message):
@@ -164,6 +166,35 @@ def restart_bot(message):
         subprocess.run("python3 m.py", shell=True)
     else:
         bot.reply_to(message, "🚫 SIRF ADMIN HI RESTART KAR SAKTA HAI!")
+
+# ✅ GROUP & CHANNEL SETTINGS
+ANNOUNCE_CHANNEL = "@ONLYPAID_USER_77"  # ✅ Announcement इसी चैनल में जाएगा
+ANNOUNCE_INTERVAL = 2 * 60 * 60  # ✅ 2 घंटे (7200 सेकंड)
+
+# ✅ AUTO ANNOUNCEMENT SYSTEM
+def auto_announce():
+    while True:
+        try:
+            announcement_text = (
+                "🔥 **PAID HACKS AVAILABLE!** 🔥\n\n"
+                "🎯 **@KHAPITAR_BALAK77** चैनल पर आपको **हर तरह के VIP PAID HACKS** मिलेंगे!\n\n"
+                "💰 **Price List:**\n"
+                "✅ **1 Hour - ₹15**\n"
+                "✅ **1 Day - ₹60**\n"
+                "✅ **3 Days - ₹160**\n\n"
+                "🛒 **Agar lena hai toh DM kare:** @R_SDANGER77"
+            )
+            bot.send_message(ANNOUNCE_CHANNEL, announcement_text, parse_mode="Markdown")
+        except Exception as e:
+            print(f"⚠️ Announcement Error: {e}")
+        
+        time.sleep(ANNOUNCE_INTERVAL)  # ✅ 2 घंटे के लिए रुकेगा
+
+# ✅ ANNOUNCEMENT SYSTEM को BACKGROUND में चलाना
+threading.Thread(target=auto_announce, daemon=True).start()
+
+# ✅ BOT START
+bot.polling(none_stop=True)
 
 # ✅ START POLLING
 bot.polling(none_stop=True)
