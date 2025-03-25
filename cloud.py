@@ -5,13 +5,13 @@ import subprocess
 import threading
 
 # ✅  TELEGRAM BOT TOKEN
-bot = telebot.TeleBot('8064557178:AAG578KnVSWvoz5eigBuQQwVTfYuLi5LPTU')
+bot = telebot.TeleBot('tocken')
 
 # ✅  GROUP & CHANNEL SETTINGS
 GROUP_ID = "-1001855389923"
 SCREENSHOT_CHANNEL = "@CLouD_VIP_CHEAT"
 SCREENSHOT_CHANNEL_2 = "@KHAPITAR_BALAK77"
-ADMINS = [7129010361, 1851260327]
+ADMINS = ["7129010361, 1851260327"]
 
 # ✅ GLOBAL VARIABLES
 active_attacks = {}  # अटैक स्टेटस ट्रैक करेगा
@@ -44,7 +44,7 @@ def handle_attack(message):
 
     # ✅ पहले पेंडिंग वेरिफिकेशन चेक करो
     if user_id in pending_verification:
-        bot.reply_to(message, "🚫 **PEHLE PURANE ATTACK KA SCREENSHOT BHEJ, TABHI NAYA ATTACK LAGEGA!**")
+        bot.reply_to(message, "🚫 **APKA SCREENSHOT VERIFICATION NHI HUA!**")
         return
 
     # ✅ अटैक लिमिट चेक करो
@@ -66,8 +66,8 @@ def handle_attack(message):
         bot.reply_to(message, "❌ **PORT AUR TIME NUMBER HONE CHAHIYE!**")
         return
 
-    if time_duration > 180:
-        bot.reply_to(message, "🚫 **180S SE ZYADA ALLOWED NAHI HAI!**")
+    if time_duration > 90:
+        bot.reply_to(message, "🚫 **90S FREE MAIN ETNA HI MILEGA!**")
         return
 
     # ✅ पहले ही वेरिफिकेशन सेट कर दो ताकि यूजर तुरंत स्क्रीनशॉट भेज सके
